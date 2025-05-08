@@ -1,0 +1,30 @@
+services:
+  mamafi-postgres:
+    container_name: mamafi-postgres
+    image: postgres
+    expose:
+      - 5432
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=${TYPEORM_USERNAME}
+      - POSTGRES_PASSWORD=${TYPEORM_PASSWORD}
+    volumes:
+      - ./init_pg_dbs.sql:/docker-entrypoint-initdb.d/init_pg_dbs.sql
+    networks:
+      - mamafi
+  mamafi-redis:
+    container_name: mamafi-redis
+    image: redis:alpine
+    expose:
+      - 6379
+    ports:
+      - '6379:6379'
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: redis-server --requirepass 123456
+    networks:
+      - mamafi
+networks:
+  mamafi:
+    name: mamafi
