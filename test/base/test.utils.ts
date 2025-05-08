@@ -6,7 +6,6 @@ import {
 import * as request from 'supertest';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as pg from 'pg';
-import { StatusInterceptor } from '../../src/base/interceptors/status.interceptor';
 import { getConfiguration } from 'src/config-module/helpers/env-variable-mapper';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -52,7 +51,6 @@ export async function getSharedApp(): Promise<INestApplication> {
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI });
 
-  app.useGlobalInterceptors(new StatusInterceptor());
   app.useGlobalPipes(
     new ValidationPipe({
       enableDebugMessages: true,
