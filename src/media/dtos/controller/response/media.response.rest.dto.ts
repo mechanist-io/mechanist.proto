@@ -1,4 +1,4 @@
-import { PostMediaEntity } from 'src/media/entities/post-media.entity';
+import { MediaEntity } from "src/media/entities/media.entity";
 
 export class MediaResponseRestDto {
   id: string;
@@ -10,7 +10,7 @@ export class MediaResponseRestDto {
   };
 
   constructor(
-    rawData: PostMediaEntity,
+    rawData: MediaEntity,
     temp?: { fields: Record<string, string>; uploadUrl: string },
   ) {
     this.id = rawData.id;

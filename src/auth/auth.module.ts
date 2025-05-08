@@ -1,30 +1,24 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigService } from '../config-module/config.service';
-import { UserModule } from '../user/user.module';
-import { SessionEntity } from './entities/session.entity';
-import { AuthController } from './controllers/auth.controller';
-import { AuthService, JwtTokenService, SessionService } from './services';
-import { SessionController } from './controllers/session.controller';
+// import { JwtModule } from '@nestjs/jwt';
+// import { ConfigService } from '../config-module/config.service';
+import { AuthService } from './services/auth.service';
 
+// TODO: algo-boilerplate -> add your auth module here
 @Module({
   imports: [
-    JwtModule.registerAsync({
-      useFactory: async (configService: ConfigService) => {
-        const config = configService.getConfigs().auth;
-        const secret = config.JWT_ACCESS_TOKEN_SECRET;
-        const expiresIn = config.JWT_ACCESS_TOKEN_EXPIRE_SEC;
+    // JwtModule.registerAsync({
+    //   useFactory: async (configService: ConfigService) => {
+    //     const config = configService.getConfigs().auth;
+    //     const secret = config.JWT_ACCESS_TOKEN_SECRET;
+    //     const expiresIn = config.JWT_ACCESS_TOKEN_EXPIRE_SEC;
 
-        return { secret, signOptions: { expiresIn } };
-      },
-      inject: [ConfigService],
-    }),
-    TypeOrmModule.forFeature([SessionEntity]),
-    UserModule,
+    //     return { secret, signOptions: { expiresIn } };
+    //   },
+    //   inject: [ConfigService],
+    // }),
   ],
-  controllers: [AuthController, SessionController],
-  providers: [AuthService, JwtTokenService, SessionService],
-  exports: [JwtTokenService, SessionService, AuthService],
+  controllers: [],
+  providers: [AuthService],
+  exports: [AuthService],
 })
 export class AuthModule {}

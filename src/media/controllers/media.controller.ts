@@ -29,7 +29,7 @@ export class MediaController {
       'create a presigned URL for uploading posts media to the S3 bucket. This endpoint is used to create a presigned URL for uploading media to the S3 bucket.',
   })
   @Protected()
-  async createPostMedia(
+  async createMedia(
     @CurrentUser() user: JwtPayloadInterface,
     @Body() dto: CreateMediaRequestRestDto,
   ): Promise<MediaResponseRestDto> {

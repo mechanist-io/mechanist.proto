@@ -7,17 +7,16 @@ import {
 
 import { Logger } from 'src/base/common/logger';
 import { JwtPayloadInterface } from '../interfaces/jwt-payload.interface';
-import { JwtTokenService } from '../services/jwt-token.service';
 import { Request } from 'express';
-import { SessionService } from '../services';
+
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   private readonly logger = new Logger(AuthGuard.name);
 
   constructor(
-    private readonly jwtService: JwtTokenService,
-    private readonly sessionService: SessionService,
+    // private readonly jwtService: JwtTokenService,
+    // private readonly sessionService: SessionService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -53,15 +52,19 @@ export class AuthGuard implements CanActivate {
       }
       request['token'] = token;
 
+      // TODO: algo-boilerplate -> add your access token validation here
+      
       // validate access token
-      const jwtPayload = await this.jwtService.verifyToken({
-        token,
-        isRefreshToken: false,
-      });
-      // validate session
-      const { sessionId, refreshCounter } = jwtPayload;
-      await this.sessionService.validate({ sessionId, refreshCounter });
-      return jwtPayload ?? null;
+      // const jwtPayload = await this.jwtService.verifyToken({
+      //   token,
+      //   isRefreshToken: false,
+      // });
+      // // validate session
+      // const { sessionId, refreshCounter } = jwtPayload;
+      // await this.sessionService.validate({ sessionId, refreshCounter });
+      // return jwtPayload ?? null;
+
+      return null;
     } catch (error) {
       this.logger.warn(
         {
