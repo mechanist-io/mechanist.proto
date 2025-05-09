@@ -1,6 +1,6 @@
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ConfigService } from './config.service';
+import { ConfigService } from './services/config.service';
 import { validateConfiguration } from './helpers/validation';
 
 @Module({})

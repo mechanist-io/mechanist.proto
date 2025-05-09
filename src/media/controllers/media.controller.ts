@@ -11,15 +11,13 @@ import { JwtPayloadInterface } from 'src/auth/interfaces/jwt-payload.interface';
 import { CurrentUser } from 'src/base/decorators/current-user.decorator';
 import { Protected } from 'src/base/decorators/protection.decorator';
 import { CreateMediaRequestRestDto } from '../dtos/controller/requests/create-media.request.rest.dto';
-import { MediaResponseRestDto } from '../dtos/controller/response/media.response.rest.dto';
+import { MediaResponseRestDto } from '../dtos/controller/responses/media.response.rest.dto';
 import { MediaService } from '../services/media.service';
 
 @Controller()
 @ApiTags('Media')
 export class MediaController {
-  constructor(
-    private readonly avatarService: MediaService,
-  ) {}
+  constructor(private readonly avatarService: MediaService) {}
 
   @Version('2')
   @Post('media/s3-presigned-upload-url')
@@ -43,5 +41,4 @@ export class MediaController {
       fields: result.fields,
     });
   }
-
 }

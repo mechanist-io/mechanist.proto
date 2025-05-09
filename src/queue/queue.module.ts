@@ -1,6 +1,5 @@
 import { BullModule } from '@nestjs/bull';
 import { DynamicModule } from '@nestjs/common';
-import { ConfigService } from 'src/config-module/config.service';
 import {
   QueueModuleOptions,
   SharedQueueAsyncConfiguration,
@@ -9,7 +8,8 @@ import {
 export class QueueModule {
   static register(config: QueueModuleOptions): DynamicModule {
     const module: DynamicModule = BullModule.registerQueueAsync({
-      name: ConfigService.getRecommendationConfig().queue.name,
+      // TODO: algo-boilerplate -> add your queue name here
+      name: 'example',
       useFactory: async () => ({
         defaultJobOptions: config.options,
       }),

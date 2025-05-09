@@ -1,9 +1,9 @@
 import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from 'src/config-module/config.service';
 import { CreateMediaPresignedUploadUrlDto } from '../dtos/service/requests/create-post-media-presigned-upload-url.dto';
 import { Logger } from 'src/base/common/logger';
+import { ConfigService } from 'src/config-module/services/config.service';
 
 @Injectable()
 export class FileService {

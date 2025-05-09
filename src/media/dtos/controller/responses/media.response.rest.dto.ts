@@ -1,4 +1,4 @@
-import { MediaEntity } from "src/media/entities/media.entity";
+import { MediaEntity } from 'src/media/entities/media.entity';
 
 export class MediaResponseRestDto {
   id: string;

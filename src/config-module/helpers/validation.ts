@@ -1,7 +1,7 @@
-import { InternalServerErrorException } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { ConfigDto } from '../dtos/config.dto';
+import { ConfigMissingKeyServerException } from '../exceptions/server/config.missing-key.server.exception';
 
 export function validateConfiguration(
   processEnv: NodeJS.Dict<string>,
@@ -13,7 +13,9 @@ export function validateConfiguration(
     skipMissingProperties: false,
   });
   if (errors.length > 0) {
-    throw new InternalServerErrorException(errors.toString());
+    throw new ConfigMissingKeyServerException({
+      reason: errors.toString(),
+    });
   }
   process.env = validatedAndCastedEnv;
 

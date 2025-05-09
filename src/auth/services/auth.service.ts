@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from 'src/config-module/config.service';
+import { ConfigService } from 'src/config-module/services/config.service';
 // import { Logger } from 'src/base/common/logger';
 // import { RedisService } from 'src/redis/redis.service';
 
@@ -12,5 +12,5 @@ export class AuthService {
     // private readonly redis: RedisService,
   ) {}
 
-// TODO: algo-boilerplate -> add your methods here
+  // TODO: algo-boilerplate -> add your methods here
 }

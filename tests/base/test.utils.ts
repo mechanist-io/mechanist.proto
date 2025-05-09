@@ -10,9 +10,9 @@ import { getConfiguration } from 'src/config-module/helpers/env-variable-mapper'
 import { ObjectLiteral, Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
-import { ConfigService } from 'src/config-module/config.service';
+import { ConfigService } from 'src/config-module/services/config.service';
 import { MediaEntity } from 'src/media/entities/media.entity';
-import { RedisService } from 'src/redis/redis.service';
+import { RedisService } from 'src/redis/services/redis.service';
 import { AppModule } from 'src/app.module';
 
 let sharedApp: INestApplication | undefined = undefined;
@@ -41,7 +41,6 @@ export async function getSharedApp(): Promise<INestApplication> {
       'https://localhost:9001',
       'http://localhost:9000',
       'https://localhost:9000',
-      'https://mobile.mamafi.play.jedidev.com',
     ],
 
     credentials: true,
