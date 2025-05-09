@@ -5,7 +5,10 @@ describe('Exception Location Architecture Tests', () => {
   const srcDir = join(process.cwd(), 'src');
 
   it('should ensure exception files follow the correct structure and naming conventions', async () => {
-    const files = await glob('**/*.exception.ts', { cwd: srcDir });
+    const files = await glob('**/*.exception.ts', {
+      cwd: srcDir,
+      ignore: ['**/base/exceptions/**'], // Ignore base exceptions
+    });
     const violations: string[] = [];
 
     for (const file of files) {

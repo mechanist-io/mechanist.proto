@@ -8,8 +8,11 @@ if you want to bypass tests you can run BYPASS_TESTS=true git commit -m 'Your co
 npx lint-staged
 
 if [ "$BYPASS_TESTS" = "true" ]; then
-  echo "Bypassing e2e tests. Make sure to run them manually!"
+  echo "Bypassing tests. Make sure to run them manually!"
 else
+  echo "Running architecture tests..."
+  npm run test:arch
+  echo "Running e2e tests..."
   npm run test:e2e
 fi
 

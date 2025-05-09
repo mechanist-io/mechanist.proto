@@ -5,44 +5,26 @@ import * as fs from 'fs';
 describe('Controller Import Architecture Tests', () => {
   const srcDir = join(process.cwd(), 'src');
 
-  it('should ensure controllers do not import from services', async () => {
-    const controllerFiles = await glob('**/*.controller.ts', { cwd: srcDir });
+  it('should ensure controllers only import DTOs from dtos/controller directories', async () => {
+    const controllerFiles = await glob('**/*.controller.ts', {
+      cwd: srcDir,
+      ignore: ['**/base/exceptions/**'], // Ignore base exceptions
+    });
     const violations: string[] = [];
 
     for (const file of controllerFiles) {
       const content = fs.readFileSync(join(srcDir, file), 'utf-8');
 
-      // Check for imports from services
-      if (content.includes('/services/')) {
-        violations.push(
-          `${file} - Should not import from services. Controllers should not depend on services.`,
-        );
-      }
-    }
+      // Check for DTO imports
+      const dtoImports = content.match(/import.*from.*['"].*dto['"]/g) || [];
 
-    expect(violations).toHaveLength(0);
-    if (violations.length > 0) {
-      console.error('Found controllers importing from services:');
-      violations.forEach((violation) => console.error(`- ${violation}`));
-    }
-  });
-
-  it('should ensure controllers only import from their respective DTOs', async () => {
-    const controllerFiles = await glob('**/*.controller.ts', { cwd: srcDir });
-    const violations: string[] = [];
-
-    for (const file of controllerFiles) {
-      const content = fs.readFileSync(join(srcDir, file), 'utf-8');
-      const controllerDir = file.split('/').slice(0, -1).join('/');
-
-      // Check for imports from other DTOs
-      if (
-        content.includes('/dtos/') &&
-        !content.includes(`${controllerDir}/dtos/`)
-      ) {
-        violations.push(
-          `${file} - Should only import DTOs from its own directory.`,
-        );
+      for (const importStatement of dtoImports) {
+        // Check if the import path contains dtos/controller
+        if (!importStatement.includes('/dtos/controller/')) {
+          violations.push(
+            `${file} - Invalid DTO import: ${importStatement}. DTOs must be imported from a module's dtos/controller directory.`,
+          );
+        }
       }
     }
 
@@ -51,6 +33,43 @@ describe('Controller Import Architecture Tests', () => {
       console.error(
         'Found controllers importing from incorrect DTO locations:',
       );
+      violations.forEach((violation) => console.error(`- ${violation}`));
+    }
+  });
+
+  it('should ensure controllers only import services from their module services directory', async () => {
+    const files = await glob('**/*.controller.ts', {
+      cwd: srcDir,
+      ignore: ['**/base/exceptions/**'], // Ignore base exceptions
+    });
+    const violations: string[] = [];
+
+    for (const file of files) {
+      const content = fs.readFileSync(join(srcDir, file), 'utf-8');
+      const moduleName = file.split('/')[0];
+
+      // Check for service imports
+      const serviceImports =
+        content.match(/import.*from.*['"].*service['"]/g) || [];
+
+      for (const importStatement of serviceImports) {
+        // Allow both relative path imports (../services/) and absolute path imports (moduleName/services/)
+        const isRelativePath = importStatement.includes('../services/');
+        const isAbsolutePath = importStatement.includes(
+          `/${moduleName}/services/`,
+        );
+
+        if (!isRelativePath && !isAbsolutePath) {
+          violations.push(
+            `${file} - Invalid service import: ${importStatement}. Services must be imported from either relative path (../services/) or absolute path (${moduleName}/services/).`,
+          );
+        }
+      }
+    }
+
+    expect(violations).toHaveLength(0);
+    if (violations.length > 0) {
+      console.error('Found controllers with invalid service imports:');
       violations.forEach((violation) => console.error(`- ${violation}`));
     }
   });

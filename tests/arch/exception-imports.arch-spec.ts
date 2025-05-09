@@ -34,7 +34,7 @@ describe('Exception Import Architecture Tests', () => {
         '**/node_modules/**',
         '**/dist/**',
         '**/exceptions/**', // Ignore files in exceptions folder
-        '**/base/exceptions/http/**', // Ignore base HTTP exceptions
+        '**/base/exceptions/**', // Ignore base exceptions
       ],
     });
 

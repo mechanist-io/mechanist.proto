@@ -12,7 +12,7 @@ import { CreateAvatarMediaResponseDto } from '../dtos/service/responses/create-a
 import { UUID } from 'uuidjs';
 import { extractFileType } from 'src/base/common/extract-file-type';
 import { MediaSourceType } from 'src/base/enums/media-type.enum';
-import { MediaNotFoundException } from '../exceptions/media-not-found.exception';
+import { MediaNotFoundException } from '../exceptions/client/media-not-found.client.exception';
 import { ParallelQueryHandler } from 'src/base/common/parallel-query.handler';
 
 @Injectable()
@@ -88,7 +88,7 @@ export class MediaService {
     const queries = new ParallelQueryHandler(MediaService.name);
 
     queries.addMany({
-      queryHandlers: mediaItems.map(media => {
+      queryHandlers: mediaItems.map((media) => {
         const filePath = `${extractFileType(media.mimeType)}/${new Date().getFullYear()}/users/${dto.userId}/avatar/${media.fileName}`;
         return this.fileService.deleteS3File({ key: filePath });
       }),
