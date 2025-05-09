@@ -1,0 +1,9 @@
+npx --no -- commitlint --edit $1 || (
+    echo "Commit message format is incorrect. Please use the following format:"
+    echo "type(scope): subject"
+    echo ""
+    echo "Types: build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test"
+    echo ""
+    echo "Example: feat(auth): add login functionality"
+    exit 1
+)

@@ -1,0 +1,16 @@
+echo " - - - - - -
+- - - - - - 
+- - - - - - 
+if you want to bypass tests you can run BYPASS_TESTS=true git commit -m 'Your commit message'
+- - - - - - 
+- - - - - - 
+- - - - - -"
+npx lint-staged
+
+if [ "$BYPASS_TESTS" = "true" ]; then
+  echo "Bypassing e2e tests. Make sure to run them manually!"
+else
+  npm run test:e2e
+fi
+
+
