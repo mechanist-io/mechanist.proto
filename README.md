@@ -43,7 +43,7 @@ npm run start
 npm run test:e2e
 
 # Generate a new migration
-npm run migration:generate -n -- ./database/migrations/migrationname
+npm run migration:generate -n -- ./infra/database/migrations/migrationname
 
 # Run all migrations
 npm run migration:run

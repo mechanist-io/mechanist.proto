@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Version } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
   DiskHealthIndicator,
@@ -9,10 +9,9 @@ import {
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 
-@ApiTags('Health - Check')
+@ApiTags('Health Check')
 @Controller({
   path: 'health',
-  version: '1',
 })
 export class HealthController {
   constructor(
@@ -22,23 +21,27 @@ export class HealthController {
     private disk: DiskHealthIndicator,
   ) {}
 
+  @Version('1')
   @Get()
   app() {
     return 'Ok';
   }
 
+  @Version('1')
   @Get('network')
   @HealthCheck()
   async checkNetwork() {
     return this.http.pingCheck('google', 'https://google.com/');
   }
 
+  @Version('1')
   @Get('database')
   @HealthCheck()
   async checkDatabase() {
     return this.db.pingCheck('database');
   }
 
+  @Version('1')
   @Get('memory-heap')
   @HealthCheck()
   async checkMemoryHeap() {
@@ -46,6 +49,7 @@ export class HealthController {
     return this.memory.checkHeap('memory-heap', 200 * 1024 * 1024);
   }
 
+  @Version('1')
   @Get('memory-rss')
   @HealthCheck()
   async checkMemoryRSS() {
@@ -53,6 +57,7 @@ export class HealthController {
     return this.memory.checkRSS('memory-rss', 200 * 1024 * 1024);
   }
 
+  @Version('1')
   @Get('disk')
   @HealthCheck()
   async checkDisk() {

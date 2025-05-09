@@ -35,7 +35,6 @@ export async function getSharedApp(): Promise<INestApplication> {
 
   const app = moduleFixture.createNestApplication();
 
-
   app.enableCors({
     origin: [
       'http://localhost:9001',
@@ -83,18 +82,17 @@ export function getRepository<T extends ObjectLiteral>(
 
 export async function cleanUpDatabaseAndReSeed(app: INestApplication) {
   await cleanUpDatabaseAndRedis(app);
-  
+
   // TODO: algo-boilerplate -> seed your database here
 }
 
-
 export async function cleanUpDatabase(app: INestApplication) {
   const manager = getRepository(app, MediaEntity).manager;
-  await manager.transaction(async transactionalEntityManager => {
+  await manager.transaction(async (transactionalEntityManager) => {
     const removeTablesQuery = [
       // TODO: algo-boilerplate -> add your tables here
       transactionalEntityManager.getRepository(MediaEntity),
-    ].map(repository =>
+    ].map((repository) =>
       repository.query(`DELETE from ${repository.metadata.tableName}`),
     );
 

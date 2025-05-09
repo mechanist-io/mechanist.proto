@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker';
 import { FileService } from 'src/file/services/file.service';
 import { Logger } from '../../src/base/common/logger';
 
@@ -12,11 +11,10 @@ export function mockLogger() {
   jest.spyOn(Logger.prototype, 'debug').mockImplementation(async () => {});
 }
 
-
 export function mockFileService() {
   const presignedUrl = jest
     .spyOn(FileService.prototype, 'createS3PresignedUploadUrl')
-    .mockImplementation(async value => {
+    .mockImplementation(async (value) => {
       return {
         url: 'https://s3.amazonaws.com/bucket',
         fields: {

@@ -23,11 +23,10 @@ export const AppDataSource = new DataSource({
     env.TYPEORM_SSL_ON === 'true' && env.TYPEORM_SSL_CA_PATH
       ? {
           ca: readFileSync(env.TYPEORM_SSL_CA_PATH),
-          rejectUnauthorized:
-            env.TYPEORM_SSL_REJECT_UNAUTHORIZED === 'true',
+          rejectUnauthorized: env.TYPEORM_SSL_REJECT_UNAUTHORIZED === 'true',
         }
       : false,
-  entities: [__dirname + '/../src/**/*.entity.{ts,js}'],
+  entities: [__dirname + '/../../src/**/*.entity.{ts,js}'],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
   cli: {
     entitiesDir: 'src',
