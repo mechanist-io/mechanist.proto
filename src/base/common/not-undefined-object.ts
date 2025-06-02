@@ -8,7 +8,7 @@ import {
 
 @ValidatorConstraint({ async: false })
 class UndefinedObjectGuardValidator implements ValidatorConstraintInterface {
-  validate(value: any, args: ValidationArguments) {
+  validate(_value: any, args: ValidationArguments) {
     const object = args.object as any;
     delete object.undefinedObjectGuard;
     if (Object.keys(object).length === 0) {

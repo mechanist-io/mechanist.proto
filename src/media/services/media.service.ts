@@ -3,17 +3,17 @@ import {
   DeleteMediaRequestDto,
   FindOneMediaRequestDto,
 } from '../dtos/service/requests/find-media.request.dto';
-import { FileService } from 'src/file/services/file.service';
-import { MediaEntity } from '../entities/media.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateMediaRequestDto } from '../dtos/service/requests/create-avatar-media.request.dto';
-import { CreateAvatarMediaResponseDto } from '../dtos/service/responses/create-avatar-media.response.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 import { UUID } from 'uuidjs';
+import { FileService } from 'src/file/services/file.service';
+import { ParallelQueryHandler } from 'src/base/common/parallel-query.handler';
 import { extractFileType } from 'src/base/common/extract-file-type';
 import { MediaSourceType } from 'src/base/enums/media-type.enum';
+import { CreateAvatarMediaResponseDto } from '../dtos/service/responses/create-avatar-media.response.dto';
+import { CreateMediaRequestDto } from '../dtos/service/requests/create-avatar-media.request.dto';
 import { MediaNotFoundException } from '../exceptions/client/media-not-found.client.exception';
-import { ParallelQueryHandler } from 'src/base/common/parallel-query.handler';
+import { MediaEntity } from '../entities/media.entity';
 
 @Injectable()
 export class MediaService {
@@ -55,7 +55,7 @@ export class MediaService {
   async findOne(dto: FindOneMediaRequestDto): Promise<MediaEntity> {
     const media = await this.mediaRepository.findOneBy({
       id: dto.id,
-      userId: dto.userId,
+      ...(dto.userId && { userId: dto.userId }),
     });
 
     if (!media) {

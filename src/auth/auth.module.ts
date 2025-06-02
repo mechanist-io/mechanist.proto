@@ -11,7 +11,6 @@ import { AuthService } from './services/auth.service';
     //     const config = configService.getConfigs().auth;
     //     const secret = config.JWT_ACCESS_TOKEN_SECRET;
     //     const expiresIn = config.JWT_ACCESS_TOKEN_EXPIRE_SEC;
-
     //     return { secret, signOptions: { expiresIn } };
     //   },
     //   inject: [ConfigService],

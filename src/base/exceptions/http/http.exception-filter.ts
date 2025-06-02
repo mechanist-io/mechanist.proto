@@ -1,13 +1,13 @@
+import { Request, Response } from 'express';
 import {
-  Catch,
   ArgumentsHost,
+  Catch,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
 import { BaseExceptionFilter } from '@nestjs/core';
-import { Logger } from 'src/base/common/logger';
 import { UUID } from 'uuidjs';
+import { Logger } from 'src/base/common/logger';
 
 interface HttpExceptionBody {
   statusCode: number;
@@ -19,7 +19,7 @@ interface HttpExceptionBody {
 export class HttpExceptionFilter extends BaseExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
 
-  async catch(exception: unknown, host: ArgumentsHost) {
+  override catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
@@ -61,13 +61,13 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
           requestParams: request.params,
           ip: request.ip,
           userAgent:
-            request.headers['user-agent'] ||
-            request.headers['User-Agent'] ||
+            request.headers['user-agent'] ??
+            request.headers['User-Agent'] ??
             null,
           userId:
             typeof request.user === 'object'
-              ? (request.user as any).sub || null
-              : request.user || null,
+              ? ((request.user as any).sub ?? null)
+              : (request.user ?? null),
         },
       },
       this.logger.context,

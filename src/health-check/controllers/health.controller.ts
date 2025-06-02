@@ -15,10 +15,10 @@ import {
 })
 export class HealthController {
   constructor(
-    private http: HttpHealthIndicator,
-    private db: TypeOrmHealthIndicator,
-    private memory: MemoryHealthIndicator,
-    private disk: DiskHealthIndicator,
+    private readonly http: HttpHealthIndicator,
+    private readonly db: TypeOrmHealthIndicator,
+    private readonly memory: MemoryHealthIndicator,
+    private readonly disk: DiskHealthIndicator,
   ) {}
 
   @Version('1')

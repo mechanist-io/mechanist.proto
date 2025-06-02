@@ -1,7 +1,7 @@
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
-import { SetRedisVariableRequestDto } from './dtos/service/requests/set-redis-variable.request.dto';
+import { SetRedisVariableRequestDto } from '../dtos/service/requests/set-redis-variable.request.dto';
 
 @Injectable()
 export class RedisService {
@@ -16,7 +16,7 @@ export class RedisService {
     value,
     options,
   }: SetRedisVariableRequestDto): Promise<void> {
-    const { ttl, setIfExists } = options || {};
+    const { ttl, setIfExists } = options ?? {};
 
     if (ttl !== undefined) {
       if (setIfExists === true) {
@@ -60,7 +60,7 @@ export class RedisService {
       .expire(lockKey, 30)
       .exec();
 
-    return result?.[0][1] === 1;
+    return result?.[0]?.[1] === 1;
   }
 
   async isLocked({ key }: { key: string }): Promise<boolean> {
@@ -78,11 +78,11 @@ export class RedisService {
   }
 
   async increment({ key }: { key: string }): Promise<number> {
-    return await this.redis.incr(key);
+    return this.redis.incr(key);
   }
 
   async decrement({ key }: { key: string }): Promise<number> {
-    return await this.redis.decr(key);
+    return this.redis.decr(key);
   }
 
   async getOrSet({
@@ -91,7 +91,9 @@ export class RedisService {
     options,
   }: SetRedisVariableRequestDto): Promise<string> {
     const cached = await this.redis.get(key);
-    if (cached) return cached;
+    if (cached) {
+      return cached;
+    }
     if (options?.ttl) {
       await this.redis.set(key, value, 'EX', options.ttl);
     } else {

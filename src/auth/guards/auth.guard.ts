@@ -1,9 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-
 import { Logger } from 'src/base/common/logger';
 import { JwtPayloadInterface } from '../interfaces/jwt-payload.interface';
-import { Request } from 'express';
 import { AuthUnauthorizedClientException } from '../exceptions/client/unauthorized.client.exception';
+import { IRequest } from '../interfaces/request.interface';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -13,11 +12,11 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     try {
-      const request = context.switchToHttp().getRequest() as Request;
+      const request: IRequest = context.switchToHttp().getRequest();
 
       const accessTokenResult = await this.handleAccessToken(request);
       if (accessTokenResult) {
-        request['user'] = accessTokenResult;
+        request.user = accessTokenResult;
         return true;
       }
     } catch (error) {
@@ -37,14 +36,14 @@ export class AuthGuard implements CanActivate {
   }
 
   private async handleAccessToken(
-    request: Request,
+    request: IRequest,
   ): Promise<JwtPayloadInterface | null> {
     try {
       const token = this.extractTokenFromHeader(request);
       if (!token) {
         throw new Error('No access token found');
       }
-      request['token'] = token;
+      request.token = token;
 
       // TODO: algo-boilerplate -> add your access token validation here
 
@@ -57,8 +56,9 @@ export class AuthGuard implements CanActivate {
       // const { sessionId, refreshCounter } = jwtPayload;
       // await this.sessionService.validate({ sessionId, refreshCounter });
       // return jwtPayload ?? null;
-
-      return null;
+      return new Promise((resolve) => {
+        resolve(null);
+      });
     } catch (error) {
       this.logger.warn(
         {
@@ -73,9 +73,11 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const authHeader = request.headers['authorization'];
-    if (!authHeader) return undefined;
+  private extractTokenFromHeader(request: IRequest): string | undefined {
+    const authHeader = request.headers.authorization;
+    if (!authHeader) {
+      return undefined;
+    }
 
     const [type, token] = authHeader.split(' ');
     return type === 'Bearer' ? token : undefined;

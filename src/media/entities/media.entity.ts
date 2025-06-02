@@ -8,17 +8,17 @@ import {
 @Index('idx_media_user_id', ['userId'])
 export class MediaEntity extends BaseEntity {
   @Column({ nullable: false, type: 'text' })
-  url: string;
+  url!: string;
 
   @Column({ nullable: false, type: 'text' })
-  fileName: string;
+  fileName!: string;
 
   @Column({ nullable: false, type: 'enum', enum: MediaMimeType })
-  mimeType: MediaMimeType;
+  mimeType!: MediaMimeType;
 
   @Column({ nullable: false, type: 'enum', enum: MediaSourceType })
-  sourceType: MediaSourceType;
+  sourceType!: MediaSourceType;
 
   @Column({ nullable: false, type: 'uuid' })
-  userId: string;
+  userId!: string;
 }

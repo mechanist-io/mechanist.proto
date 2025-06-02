@@ -1,9 +1,4 @@
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ConfigDto {
   @IsOptional()
@@ -99,5 +94,5 @@ export class ConfigDto {
 
   @IsString()
   @IsNotEmpty()
-  OFFICIAL_BOT_API_KEY: string;
+  OFFICIAL_BOT_API_KEY!: string;
 }

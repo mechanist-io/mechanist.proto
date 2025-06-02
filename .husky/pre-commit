@@ -10,10 +10,8 @@ npx lint-staged
 if [ "$BYPASS_TESTS" = "true" ]; then
   echo "Bypassing tests. Make sure to run them manually!"
 else
-  echo "Running architecture tests..."
-  npm run test:arch
-  echo "Running e2e tests..."
-  npm run test:e2e
+  echo "Running pre-commit checks with Docker setup..."
+  ./pre-commit.sh
 fi
 
 

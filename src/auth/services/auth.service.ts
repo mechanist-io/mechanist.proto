@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from 'src/config-module/services/config.service';
+// import { ConfigService } from 'src/config-module/services/config.service';
 // import { Logger } from 'src/base/common/logger';
 // import { RedisService } from 'src/redis/redis.service';
 
@@ -7,10 +7,7 @@ import { ConfigService } from 'src/config-module/services/config.service';
 export class AuthService {
   // private readonly logger = new Logger(AuthService.name);
 
-  constructor(
-    private readonly configService: ConfigService,
-    // private readonly redis: RedisService,
-  ) {}
+  constructor() {} // private readonly redis: RedisService, // private readonly _configService: ConfigService,
 
   // TODO: algo-boilerplate -> add your methods here
 }

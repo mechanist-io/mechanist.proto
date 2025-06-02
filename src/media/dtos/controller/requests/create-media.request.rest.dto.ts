@@ -6,5 +6,5 @@ export class CreateMediaRequestRestDto {
   @ApiProperty({ enum: MediaMimeType, example: Object.values(MediaMimeType) })
   @IsNotEmpty()
   @IsEnum(MediaMimeType)
-  mimeType: MediaMimeType;
+  mimeType!: MediaMimeType;
 }

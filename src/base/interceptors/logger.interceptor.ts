@@ -14,10 +14,10 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class LoggerInterceptor implements NestInterceptor {
-  private logger = new Logger(LoggerInterceptor.name);
+  private readonly logger = new Logger(LoggerInterceptor.name);
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map(value => {
+      map((value) => {
         const [req, res] = context.getArgs();
         if (req.user) {
           this.logger.debug(

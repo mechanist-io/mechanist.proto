@@ -8,12 +8,12 @@ import {
 
 @ValidatorConstraint({ async: false })
 class EmptyObjectGuardValidator implements ValidatorConstraintInterface {
-  validate(value: any, args: ValidationArguments) {
+  validate(_value: any, args: ValidationArguments) {
     const object = args.object as any;
     object.emptyObjectGuard = undefined;
     if (
       Object.values(object).every(
-        val => val === undefined || val === '' || val === null,
+        (val) => val === undefined || val === '' || val === null,
       )
     ) {
       return false;

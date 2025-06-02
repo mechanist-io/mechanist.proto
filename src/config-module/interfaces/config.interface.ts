@@ -1,10 +1,10 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-import { IApiConfig } from './api.interface';
-import { ICoreConfig } from './core.interface';
-import { IFileStorage } from './s3.interface';
-import { IValidationConfig } from './validation.interface';
-import { IRedisConfig } from './redis.interface';
+import type { IApiConfig } from './api.interface';
+import type { ICoreConfig } from './core.interface';
+import type { IFileStorage } from './s3.interface';
+import type { IValidationConfig } from './validation.interface';
+import type { IRedisConfig } from './redis.interface';
 
 export interface IConfig {
   core: ICoreConfig;

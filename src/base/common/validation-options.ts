@@ -1,9 +1,9 @@
-import { ValidationError, ValidationPipeOptions } from '@nestjs/common';
+import type { ValidationError, ValidationPipeOptions } from '@nestjs/common';
 import { ValidationRequestException } from '../exceptions/http/validation.exception';
 
 function mapValidationError(
   error: ValidationError,
-  level: number = 0,
+  level = 0,
 ): { message: string; identifier: string }[] {
   if (level > 2) {
     // Ignore deeper levels
@@ -20,7 +20,7 @@ function mapValidationError(
   }
 
   if (error.children) {
-    return error.children.flatMap(child =>
+    return error.children.flatMap((child) =>
       mapValidationError(child, level + 1),
     );
   }
@@ -37,12 +37,12 @@ const validationOptions: ValidationPipeOptions = {
   whitelist: true,
   enableDebugMessages: true,
   exceptionFactory: (errors: ValidationError[]) => {
-    const mappedErrors = errors.flatMap(error => mapValidationError(error));
+    const mappedErrors = errors.flatMap((error) => mapValidationError(error));
     if (mappedErrors.length > 0) {
       return new ValidationRequestException({
         information: {
-          message: mappedErrors[0].message,
-          identifier: mappedErrors[0].identifier,
+          message: mappedErrors[0]!.message,
+          identifier: mappedErrors[0]!.identifier,
         },
       });
     }

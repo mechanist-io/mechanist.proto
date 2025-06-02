@@ -1,5 +1,5 @@
 export class ParallelQueryHandler {
-  private queryHandlers = new Set<
+  private readonly queryHandlers = new Set<
     Promise<{ result: unknown; metadata: string }>
   >();
 
@@ -13,13 +13,15 @@ export class ParallelQueryHandler {
     metadata: string;
   }) {
     const wrapped = queryHandler
-      .then(result => ({ result, metadata }))
-      .catch(error => {
-        throw {
-          error,
-          metadata,
-          className: this.className,
-        };
+      .then((result) => ({ result, metadata }))
+      .catch((error) => {
+        throw new Error(
+          JSON.stringify({
+            error,
+            metadata,
+            className: this.className,
+          }),
+        );
       });
 
     this.queryHandlers.add(wrapped);
@@ -32,7 +34,9 @@ export class ParallelQueryHandler {
     queryHandlers: Promise<unknown>[];
     metadata: string;
   }) {
-    queryHandlers.forEach(queryHandler => this.add({ queryHandler, metadata }));
+    queryHandlers.forEach((queryHandler) =>
+      this.add({ queryHandler, metadata }),
+    );
   }
 
   async execute() {

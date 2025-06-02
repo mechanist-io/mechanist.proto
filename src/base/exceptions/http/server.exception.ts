@@ -1,4 +1,4 @@
-import { InternalServerErrorException, HttpStatus } from '@nestjs/common';
+import { HttpStatus, InternalServerErrorException } from '@nestjs/common';
 
 interface ServerExceptionOptions {
   information: {

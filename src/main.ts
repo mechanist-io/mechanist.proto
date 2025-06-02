@@ -11,7 +11,6 @@ async function bootstrap() {
   const PORT = getConfiguration().core.port || 9000;
   const app = await NestFactory.create(AppModule);
 
-
   // TODO: algo-boilerplate -> add your cors here
   // app.enableCors({
   //   origin: [

@@ -12,7 +12,7 @@ export class ClientException extends BadRequestException {
   constructor(options: ClientExceptionOptions) {
     const { information, statusCode } = options;
 
-    const finalStatusCode = statusCode || HttpStatus.BAD_REQUEST;
+    const finalStatusCode = statusCode ?? HttpStatus.BAD_REQUEST;
     super({
       status: finalStatusCode,
       message: information.message,

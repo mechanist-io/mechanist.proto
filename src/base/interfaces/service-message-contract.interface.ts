@@ -16,20 +16,20 @@ export abstract class BaseMQDto implements ICanValidate {
 }
 
 export class IServiceMessageContract<T extends ICanValidate> {
-  data: T;
+  data!: T;
   id?: string;
-  status: number;
+  status!: number;
 }
 export class ServiceMessageContract<T extends ICanValidate>
   implements IServiceMessageContract<T>
 {
-  data: T;
+  data!: T;
 
   @IsNotEmpty()
-  id: string;
+  id!: string;
 
   @IsInt()
-  status: number;
+  status!: number;
 
   async validate(dataClass: ClassConstructor<T>): Promise<void> {
     const object = plainToInstance(ServiceMessageContract<T>, this);

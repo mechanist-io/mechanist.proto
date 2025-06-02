@@ -1,5 +1,5 @@
-import { MediaMimeType } from '../enums/media-type.enum';
+import type { MediaMimeType } from '../enums/media-type.enum';
 
 export function extractFileType(mimeType: MediaMimeType): string {
-  return mimeType.split('/')[0];
+  return mimeType.split('/')[0]!;
 }

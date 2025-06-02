@@ -1,4 +1,4 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { type ExecutionContext, createParamDecorator } from '@nestjs/common';
 
 export interface ICurrentUserData {
   sub: string;
@@ -11,12 +11,13 @@ export const CurrentUser = createParamDecorator(
     ctx: ExecutionContext,
   ): ICurrentUserData | string | undefined => {
     const request = ctx.switchToHttp().getRequest();
-    const user = request.user;
+    const { user } = request;
     if (data) {
-      if (data == 'id' || data == 'userId') {
-        data = 'sub';
+      let key = data;
+      if (key === 'id' || key === 'userId') {
+        key = 'sub';
       }
-      return user?.[data];
+      return user?.[key];
     }
 
     return user;

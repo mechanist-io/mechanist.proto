@@ -1,15 +1,15 @@
 export class FindOneMediaRequestDto {
-  id: string;
+  id!: string;
   userId?: string;
 }
 
 export class DeleteMediaRequestDto {
   id?: string;
-  userId: string;
+  userId!: string;
 }
 
 export class FindMediaRequestDto {
-  ids: string[];
+  ids!: string[];
   userId?: string;
   hasPostId?: boolean;
 }

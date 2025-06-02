@@ -59,7 +59,7 @@ export class ConfigService {
       ConfigService._config = getConfiguration();
     }
 
-    return ConfigService._config!;
+    return ConfigService._config;
   }
 
   static resetConfig(): void {
@@ -80,6 +80,6 @@ export class ConfigService {
     if (!ConfigService._config) {
       ConfigService._config = getConfiguration();
     }
-    return ConfigService._config!;
+    return ConfigService._config;
   }
 }

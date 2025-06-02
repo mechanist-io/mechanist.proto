@@ -1,6 +1,6 @@
+import type { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { getConfiguration } from '../../config-module/helpers/env-variable-mapper';
-import { INestApplication } from '@nestjs/common';
 
 export function swaggerConfiguration(app: INestApplication<any>): void {
   if (getConfiguration().api.enabled) {

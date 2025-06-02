@@ -1,4 +1,4 @@
-import { IPaginationOptions } from '../types/pagination.interface';
+import type { IPaginationOptions } from '../types/pagination.interface';
 
 export function getSanitizedPageAndLimit(
   request: IPaginationOptions,

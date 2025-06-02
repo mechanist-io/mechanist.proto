@@ -1,7 +1,7 @@
-import { Queue } from 'bull';
-import { IdHash } from './id-hash';
-import { IServiceMessageContract } from '../interfaces/service-message-contract.interface';
+import type { Queue } from 'bull';
 import { UUID } from 'uuidjs';
+import { IdHash } from './id-hash';
+import type { IServiceMessageContract } from '../interfaces/service-message-contract.interface';
 export async function safePublish(
   queue: Queue<any>,
   {
@@ -18,11 +18,11 @@ export async function safePublish(
     timeout?: number;
   },
 ) {
-  const jobId = dto.id
-    ? dto.id
-    : freshEvent
+  const jobId =
+    dto.id ??
+    (freshEvent
       ? UUID.genV6().toString()
-      : IdHash.generate([eventName, JSON.stringify(dto.data)], publisher);
+      : IdHash.generate([eventName, JSON.stringify(dto.data)], publisher));
   dto.id = jobId;
   await queue.add(eventName, dto, { timeout, jobId });
 }

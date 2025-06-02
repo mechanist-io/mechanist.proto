@@ -1,9 +1,9 @@
-import { MediaEntity } from 'src/media/entities/media.entity';
+import type { MediaEntity } from 'src/media/entities/media.entity';
 
 export class MediaResponseRestDto {
-  id: string;
-  url: string;
-  mimeType: string;
+  id!: string;
+  url!: string;
+  mimeType!: string;
   temp?: {
     fields: Record<string, string>;
     uploadUrl: string;
@@ -16,6 +16,8 @@ export class MediaResponseRestDto {
     this.id = rawData.id;
     this.url = rawData.url;
     this.mimeType = rawData.mimeType;
-    this.temp = temp;
+    if (temp) {
+      this.temp = temp;
+    }
   }
 }

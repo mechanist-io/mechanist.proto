@@ -1,15 +1,15 @@
 import {
-  INestApplication,
+  type INestApplication,
   ValidationPipe,
   VersioningType,
 } from '@nestjs/common';
-import * as request from 'supertest';
-import { Test, TestingModule } from '@nestjs/testing';
+import type * as request from 'supertest';
+import { Test, type TestingModule } from '@nestjs/testing';
+import { type ObjectLiteral, type Repository } from 'typeorm';
+import type { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import * as pg from 'pg';
 import { getConfiguration } from 'src/config-module/helpers/env-variable-mapper';
-import { ObjectLiteral, Repository } from 'typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { ConfigService } from 'src/config-module/services/config.service';
 import { MediaEntity } from 'src/media/entities/media.entity';
 import { RedisService } from 'src/redis/services/redis.service';
@@ -26,9 +26,10 @@ export async function getSharedApp(): Promise<INestApplication> {
   const PORT = getConfiguration().core.port || 9000;
 
   pg.defaults.parseInputDatesAsUTC = true;
-  pg.types.setTypeParser(1114, (stringValue: string) => {
-    return new Date(`${stringValue}Z`);
-  });
+  pg.types.setTypeParser(
+    1114,
+    (stringValue: string) => new Date(`${stringValue}Z`),
+  );
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [AppModule],
   }).compile();
@@ -86,7 +87,7 @@ export async function cleanUpDatabaseAndReSeed(app: INestApplication) {
 }
 
 export async function cleanUpDatabase(app: INestApplication) {
-  const manager = getRepository(app, MediaEntity).manager;
+  const { manager } = getRepository(app, MediaEntity);
   await manager.transaction(async (transactionalEntityManager) => {
     const removeTablesQuery = [
       // TODO: algo-boilerplate -> add your tables here
@@ -121,8 +122,8 @@ export async function resetRedis(app: INestApplication) {
 }
 
 export function extractTokensFromResponse(response: request.Response) {
-  const accessToken = response.body.accessToken;
-  const refreshToken = response.body.refreshToken;
+  const { accessToken } = response.body;
+  const { refreshToken } = response.body;
   return { accessToken, refreshToken };
 }
 

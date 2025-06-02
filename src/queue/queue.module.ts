@@ -1,6 +1,6 @@
 import { BullModule } from '@nestjs/bull';
-import { DynamicModule } from '@nestjs/common';
-import {
+import type { DynamicModule } from '@nestjs/common';
+import type {
   QueueModuleOptions,
   SharedQueueAsyncConfiguration,
 } from './dtos/shared-queue-async-configuration';
@@ -10,7 +10,7 @@ export class QueueModule {
     const module: DynamicModule = BullModule.registerQueueAsync({
       // TODO: algo-boilerplate -> add your queue name here
       name: 'example',
-      useFactory: async () => ({
+      useFactory: () => ({
         defaultJobOptions: config.options,
       }),
     });
@@ -26,7 +26,7 @@ export class QueueModule {
           redis: queueConfig?.redis,
         };
       },
-      inject: config.inject || [],
+      inject: config.inject ?? [],
     });
   }
 }

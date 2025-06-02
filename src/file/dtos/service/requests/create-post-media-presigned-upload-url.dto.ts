@@ -1,7 +1,7 @@
-import { MediaMimeType } from 'src/base/enums/media-type.enum';
+import type { MediaMimeType } from 'src/base/enums/media-type.enum';
 
 export class CreateMediaPresignedUploadUrlDto {
-  userId: string;
-  mimeType: MediaMimeType;
-  key: string;
+  userId!: string;
+  mimeType!: MediaMimeType;
+  key!: string;
 }

@@ -1,5 +1,5 @@
 export class BulkUpdateMediaRequestDto {
-  postId: string;
-  userId: string;
-  mediaIds: string[];
+  postId!: string;
+  userId!: string;
+  mediaIds!: string[];
 }
