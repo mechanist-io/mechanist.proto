@@ -1,0 +1,60 @@
+---
+description: Core developer principles for all TypeScript files — SOLID, design patterns, function/class design, anti-patterns, and reuse-first mindset.
+globs:
+  - "src/**/*.ts"
+  - "tests/**/*.ts"
+  - "test/**/*.ts"
+alwaysApply: false
+---
+
+# Core Principles
+
+## 1. Principles
+
+**SOLID** — Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion.
+
+**Composition over inheritance** — Inject services, don't extend. Inheritance only for true IS-A.
+
+**KISS** — Simplest solution wins. If code needs a comment to explain *what* → too complex. Don't over-engineer for hypothetical futures. Flag abstractions with only one implementation.
+
+**DRY** — Scan existing services/helpers/`base/` before writing new logic. Same logic in 2+ places → extract. DRY applies to logic, not structure.
+
+**Loose Coupling** — Modules interact only through exported services, DTOs, enums. Never reach into another module's internals.
+
+**DI & Testability** — Constructor injection only. Inject abstractions. All external calls mockable. No business logic in constructors. No static methods for testable code.
+
+---
+
+## 2. Design Patterns
+
+Prefer standard patterns before custom solutions: Factory, Builder, Adapter, Decorator, Strategy, Observer, Repository, CQRS.
+
+**Factory map over switch-case** — Object-of-functions keyed by enum preferred over `switch`/`if-else`. Factory in one module → `<module>/helpers/`. Shared → `base/helpers/`.
+
+---
+
+## 3. Function & Class Design
+
+**Functions:** Max 20-30 lines. One abstraction level. Descriptive names. Max 3-4 params (more → use object). No side effects in pure functions.
+
+**Class member ordering:**
+1. Private instance variables → 2. Public/decorated properties → 3. Constructor → 4. Private methods → 5. Static methods → 6. Public instance methods
+
+**One class per file.** Exception: closely related DTOs for the same subject may share a file.
+
+---
+
+## 4. Anti-Patterns — Detect and Flag
+
+- **God Object `[HIGH]`** — >7 deps, methods spanning unrelated concerns, >300 lines → split.
+- **Golden Hammer `[MEDIUM]`** — `queryBuilder` for simple `findOne()`, Kafka for sync ops → right tool for the job.
+- **Magic Numbers/Strings `[MEDIUM]`** — Use constants/enums. Status strings must always be enums.
+- **Anchor Boat `[MEDIUM]`** — Dead code, unused imports, commented-out blocks → delete.
+- **Action at a Distance `[HIGH]`** — No silent input mutation, no global mutable state. Use spread: `{ ...entity, field: newValue }`.
+- **Singleton Overuse `[MEDIUM]`** — No request-scoped state on singletons, no manual `getInstance()`.
+
+---
+
+## 5. Reuse Before Writing
+
+Scan existing services before writing new methods. Close match → propose backwards-compatible extension. **Always ask before modifying existing methods or DTOs.**

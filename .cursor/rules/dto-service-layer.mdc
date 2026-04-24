@@ -1,0 +1,21 @@
+---
+description: DTO validation, sanitization, and service layer return type conventions for NestJS — applies when working on DTOs or service classes.
+globs:
+  - "src/**/*.dto.ts"
+  - "src/**/*.service.ts"
+alwaysApply: false
+---
+
+# DTO & Service Layer
+
+## DTO Sanitization
+
+- Validation and transformation belong on the **DTO**, not in services.
+- Use `@Transform()` for data shaping.
+- Reusable transforms → `base/validations/`.
+
+## Service Return Types
+
+- Services return entity, service-layer DTO, or primitive.
+- **Never** return endpoint-layer DTOs from services.
+- Controller is responsible for mapping the response.

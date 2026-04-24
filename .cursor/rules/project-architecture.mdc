@@ -1,0 +1,144 @@
+---
+description: Project architecture — directory structure, module organization, file naming, dependency rules.
+globs:
+  - "src/**/*.ts"
+  - "tests/**/*.ts"
+  - "test/**/*.ts"
+alwaysApply: false
+---
+
+# Project Architecture
+
+## 1. Guiding Principles
+
+- Runtime source → `src/`. Tests → `tests/`. No loose files at project root.
+- File names: **kebab-case**. Class names: **PascalCase**.
+- Only `main.ts` and `app.module.ts` directly in `src/`. Other `src/*.ts` → **violation**.
+- Ambiguous placement → **stop and ask**.
+
+---
+
+## 2. Top-Level Structure
+
+```
+src/
+├── main.ts / app.module.ts
+├── base/              # Shared utilities (no feature-module deps)
+├── config-module/     # Env config + validation (typed ConfigService, never raw process.env)
+├── health-check/      # Health/monitoring APIs only
+└── <feature-module>/
+tests/
+├── arch/              # Dependency rule tests
+├── base/              # Shared test infra (mocks, containers, seeders) — no test cases
+└── e2e/               # <subject>.e2e-spec.ts
+```
+
+---
+
+## 3. `src/base/` — Shared Utilities
+
+If a feature module utility is imported by another feature module → **move to `base/`** (flag cross-import as violation).
+
+| Directory | Contents |
+|---|---|
+| `decorators/` | Global decorators (`@CurrentUser()`, `@Public()`) used by 2+ modules |
+| `enums/` | Cross-module enums |
+| `exceptions/http/` | Base `client.exception.ts` (4xx) and `server.exception.ts` (5xx) + global filter |
+| `validations/` | Reusable pipes and class-validator decorators |
+| `interfaces/` | Cross-module TS interfaces |
+| `interceptors/` | Global interceptors |
+| `types/` | Shared TS utility types |
+| `helpers/` | Pure functions (no DI, no side effects) |
+| `<technology>/` | Tech-specific utils (e.g. `rtc/`, `kafka/`) — tech decorators live here |
+
+All exceptions must extend `client.exception.ts` or `server.exception.ts`.
+
+---
+
+## 4. Feature Modules
+
+One directory per feature. One `<name>.module.ts` — no sub-modules. Create subdirectories only when needed.
+
+```
+src/<module-name>/
+├── <module-name>.module.ts
+├── controllers/          # HTTP REST
+├── resolvers/            # GraphQL
+├── gateways/             # WebSocket
+├── dtos/                 # See DTO structure below
+├── entities/             # DB schemas
+├── enums/                # Module-specific enums
+├── services/             # Business logic
+├── helpers/              # Pure functions (no DI)
+├── queues/               # <name>.processor.ts (consumer) + <name>.event-publisher.ts
+├── exceptions/
+│   ├── client/           # 4xx — extend client.exception.ts
+│   └── server/           # 5xx — extend server.exception.ts
+└── tests/                # Unit tests (<subject>.spec.ts)
+```
+
+### DTO Structure & Naming
+
+```
+dtos/
+├── controller/ (requests/ + responses/)    # HTTP — scope: rest
+├── queue/      (requests/ + responses/)    # Kafka — scope: mq
+├── ws/         (requests/ + responses/)    # WebSocket — scope: ws
+└── service/    (requests/ + responses/)    # Service-layer — no scope
+```
+
+**Naming:** `{subject}.{request|response}.{scope}.dto.ts` (endpoint) or `{subject}.{request|response}.dto.ts` (service).
+Scopes: `rest`, `ws`, `gql`, `mq`. Only endpoint-layer DTOs get class-validator decorators.
+
+### Services
+
+May import: own entities/helpers/queues, other module services (exported), `base/`.
+Must NOT import: controllers, resolvers, gateways, endpoint-layer DTOs.
+
+### Exceptions Naming
+
+`{subject}.{reason}.{client|server}.exception.ts` — e.g. `user.not-found.client.exception.ts`. Subdirectory must match suffix.
+
+---
+
+## 5. Dependency Rules
+
+| Layer | May import from |
+|---|---|
+| controllers/resolvers/gateways | Own services, own layer DTOs, `base/` |
+| services | Own entities/helpers/queues(publishers), other module services, `base/` |
+| queues/processors | Own services, `dtos/queue/requests/`, `base/` |
+| queues/publishers | `dtos/queue/responses/`, `base/` |
+| helpers | `base/` only |
+| dtos | Other module DTOs, `base/enums/`, `base/types/` |
+| entities | `base/` only |
+
+**Forbidden (flag as violation):**
+- Controllers importing entities, queues, or other-module internals
+- Services importing endpoint-layer DTOs or controllers
+- Services importing `KafkaProducerService` directly — all Kafka publishing MUST go through a dedicated `<name>.event-publisher.ts` in `queues/`. Services call the publisher, never the producer.
+- Any module importing `other-module/helpers/` (move to base) or `other-module/exceptions/`
+
+**Cross-module allowed:** other services (via exports), other entities (only for DB relationships, sparingly), other DTOs, other enums.
+
+---
+
+## 6. Naming Cheat Sheet
+
+| Type | Pattern | Example |
+|---|---|---|
+| Module | `<name>.module.ts` | `user.module.ts` |
+| Controller | `<name>.controller.ts` | `chat.controller.ts` |
+| Audience Controller | `<audience>.<name>.controller.ts` | `admin.chat.controller.ts` |
+| Service | `<name>.service.ts` | `user-profile.service.ts` |
+| Entity | `<name>.entity.ts` | `user.entity.ts` |
+| Enum | `<name>.enum.ts` | `user-subscription.enum.ts` |
+| Helper | `<name>.helper.ts` | `date-format.helper.ts` |
+| Kafka Consumer | `<name>.processor.ts` | `user.processor.ts` |
+| Kafka Publisher | `<name>.event-publisher.ts` | `user.event-publisher.ts` |
+| Endpoint DTO | `<subject>.<req\|res>.<scope>.dto.ts` | `create-user.request.rest.dto.ts` |
+| Service DTO | `<subject>.<req\|res>.dto.ts` | `create-user.request.dto.ts` |
+| Exception | `<subject>.<reason>.<client\|server>.exception.ts` | `edit.not-allowed.client.exception.ts` |
+| Unit test | `<subject>.spec.ts` | `user.service.spec.ts` |
+| E2E test | `<subject>.e2e-spec.ts` | `user.e2e-spec.ts` |
+| Decorator/Interceptor/Pipe/Filter | `<name>.<type>.ts` | `current-user.decorator.ts` |

@@ -1,0 +1,96 @@
+---
+description: Security rules — logging, validation, injection, auth, OWASP, performance for NestJS/TypeScript.
+globs:
+  - "src/**/*.ts"
+alwaysApply: false
+---
+
+# Security Foundation
+
+## Scope & Severity
+
+Applies to `src/**/*.ts`, `test/**/*.ts`, `tests/**/*.ts`. Excludes `migrations/`, `seed/`, `dist/`, `node_modules/`.
+
+🔴 Critical / 🟠 High → block. 🟡 Medium → acknowledge. 🔵 Low → advisory. Unit test violations = Low.
+
+---
+
+## 1. Logging `[HIGH]`
+
+- **No NestJS Logger** — `import { Logger } from '@nestjs/common'` is forbidden. Use the project's custom Logger from `src/base/common/logger`.
+- **No `console.*`** in `src/` or `tests/` — use custom Logger.
+- **No sensitive data in logs** — no passwords, tokens, keys, PII. Log entity IDs only.
+
+---
+
+## 2. Input Validation `[HIGH]`
+
+- Every `@Body()`, `@Param()`, `@Query()` DTO must have class-validator decorators. No `any` typed inputs.
+- Global `ValidationPipe` with `whitelist: true`, `forbidNonWhitelisted: true`.
+- Optional fields: explicit `@IsOptional()`. Nested: `@ValidateNested()` + `@Type()`. Enums: `@IsEnum()`.
+
+---
+
+## 3. Injection & Query Security
+
+- **No raw string interpolation in queries `[CRITICAL]`** — zero tolerance for template literals/concatenation in query builders or raw queries. Use parameterized queries or ORM methods.
+- **MongoDB `[HIGH]`** — never pass raw user input into query objects. Validate via DTO upstream.
+- **Redis keys `[MEDIUM]`** — sanitize user input (no `:*?[`). Always prefix with namespace constant.
+
+---
+
+## 4. Auth & Authorization
+
+- **API keys via headers only `[HIGH]`** — `x-api-key` header. Never from `@Query()` or `@Body()`.
+- **JWT `[HIGH]`** — secrets from env, no sensitive payload fields, explicit expiry, refresh rotation invalidates old tokens.
+- **Unprotected routes `[MEDIUM]`** — must be annotated `@Public()`.
+- **Timing-safe comparison `[HIGH]`** — all secret comparisons use `crypto.timingSafeEqual`, never `===`.
+
+---
+
+## 5. Race Conditions
+
+- **Read-modify-write `[HIGH]`** — flag check-then-act across async boundaries, counters/balances without atomic ops. Fix: Redis distributed lock.
+- **Bulk upsert deadlocks `[HIGH]`** — `onConflict` + `merge`/`update` must sort by stable key before execution.
+
+---
+
+## 6. OWASP Top 10
+
+| # | Rule | Severity |
+|---|---|---|
+| A01 | Verify resource ownership server-side — scope queries to authenticated user/tenant | HIGH |
+| A02 | No hardcoded secrets. Passwords: bcrypt(10+) or argon2. Encrypt PII at rest. No `rejectUnauthorized: false` in prod | HIGH |
+| A03 | Injection — covered by §3 | CRITICAL |
+| A04 | Rate limiting on auth endpoints, account lockout after repeated failures | MEDIUM |
+| A05 | No debug/Swagger/stack traces in prod. CORS explicitly configured (no `*`). `helmet()` required in main.ts. Secure by default: `env !== 'false'` → enabled | HIGH |
+| A06 | Flag packages with known CVEs. Pin exact versions | MEDIUM |
+| A07 | Auth failures — covered by §4. Invalidate sessions on logout. Single-use password reset tokens with short TTL | HIGH |
+| A08 | Kafka payloads validated on consumption. No deserialization of untrusted data without schema validation | MEDIUM |
+| A09 | Auth failures must be logged with user ID or IP. Never swallow errors silently in catch blocks | MEDIUM |
+| A10 | SSRF — user-derived outbound URLs validated against allowlist. Block private IPs | HIGH |
+
+---
+
+## 7. Performance
+
+- **No DB/Redis queries in loops `[HIGH]`** — use batch queries / `In()`.
+- **Unbounded queries `[HIGH]`** — every collection query must have `LIMIT`/`take()`. Pagination required on all list endpoints.
+- **Missing `await` `[HIGH]`** — async calls must be `await`ed. Fire-and-forget: explicit `void`.
+- **Missing indexes `[MEDIUM]`** — `WHERE`/`ORDER BY`/`JOIN ON`/FK columns must be indexed.
+- **No sync blocking `[MEDIUM]`** — no `readFileSync`/`writeFileSync` in handlers.
+
+---
+
+## 8. Secrets `[HIGH]`
+
+- No hardcoded JWT secrets, PEM keys, DB creds, API keys, bearer tokens. All via `process.env` or secrets manager.
+- `.env` in `.gitignore`. Only `.env.example` committed. Flag real-looking secrets in `.env*` files.
+- Swagger disabled in production. No real secrets in decorator examples. Internal endpoints: `@ApiExcludeEndpoint()`.
+
+---
+
+## 9. Kafka & Redis Security
+
+- **Kafka `[HIGH]`** — all consumed payloads validated via DTO. Messages carry IDs only, no PII/credentials.
+- **Redis keys `[MEDIUM]`** — prefixed with service/module namespace. **Every key must have explicit TTL `[HIGH]`**.

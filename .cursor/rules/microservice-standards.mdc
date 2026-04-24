@@ -1,0 +1,150 @@
+---
+description: Microservice standards — EventMessageContract, compatibility, idempotency, DLQ, sagas.
+globs:
+  - "src/**/*.ts"
+  - "tests/**/*.ts"
+  - "test/**/*.ts"
+alwaysApply: false
+---
+
+# Microservice Standards
+
+Additive to security-foundation (Kafka validation, race conditions, upsert sorting), developer-mindset (IDs-only payloads, NetworkHandler), project-architecture (queue naming, DTO structure).
+
+---
+
+## 1. Backward Compatibility `[HIGH]`
+
+Every published interface (HTTP response, Kafka payload, service DTO) must remain backward compatible:
+
+- **May:** add optional fields, remove already-optional fields.
+- **Must never:** remove required fields, change required→optional, rename fields, change field types.
+- When in doubt → **stop and ask** before proceeding.
+
+---
+
+## 2. Forward Compatibility `[MEDIUM]`
+
+- Consumers must **ignore unknown fields** gracefully.
+- Use `@IsOptional()` defensively on consumer DTOs for fields not yet in older producer versions.
+- No strict exact-shape validation on consumed payloads.
+- Consider `schemaVersion` field for evolving contracts.
+
+---
+
+## 3. EventMessageContract `[CRITICAL]`
+
+**Every Kafka message — both produced and consumed — MUST be wrapped in `EventMessageContract` from `src/base/interfaces/service-message-contract.interface`.** No bare JSON payloads, no raw `JSON.stringify({ ... })`, no ad-hoc message shapes. This is non-negotiable.
+
+**Producing:** Instantiate `new EventMessageContract({ type, source, subject, data })` with a typed DTO as `data`, then serialize the contract. The `data` field MUST be an instance of a class extending `BaseMQDto`.
+
+**Consuming:** Deserialize into `EventMessageContract.from(message)`, then call `contract.validate(DtoClass)`.
+
+```typescript
+// ❌ FORBIDDEN — bare payload
+value: JSON.stringify({ referenceId, hlsUrl, dashUrl })
+
+// ✅ REQUIRED — EventMessageContract envelope
+const contract = new EventMessageContract({
+  type: EventTopics.media.videoCreated,
+  source: EventSources.cloudflare.streamReady,
+  subject: `media/${media._id}`,
+  data: dtoInstance,          // extends BaseMQDto
+});
+value: JSON.stringify(contract)
+```
+
+### Field Rules
+
+**`source`** — Always from `EventSources` in `config-module/helpers/event-sources.ts`. Format: `{service}/{feature-service}/{action}`. **`source` must be passed as a parameter to the publisher by the calling service** — publishers are reusable and must never import or hardcode `EventSources` themselves. The service (caller) decides the source, the publisher just forwards it.
+
+**`type`** — Always from `EventTopics` in `config-module/helpers/event-topics.constant.ts`. Never raw strings. Doubles as Kafka topic name.
+
+**`subject`** — Canonical resource path. Single: `user/${userId}`. Nested: `thread/${threadId}/message/${messageId}`. Collection ops: use parent resource.
+
+**`data`** — IDs and essential routing metadata only. No full entities, nested records, or large structures. Must extend `BaseMQDto`.
+
+### Publisher Ownership
+
+Publishers (`<name>.event-publisher.ts`) own message formatting (`EventMessageContract`) and Kafka delivery. They are **reusable by any service**, so they must NOT import `EventSources`. The `source` is always injected by the caller:
+
+```typescript
+// ❌ FORBIDDEN — source hardcoded inside publisher
+async publish(media: MediaEntity): Promise<void> {
+  new EventMessageContract({ source: EventSources.x.y, ... });
+}
+
+// ✅ REQUIRED — source passed by the calling service
+async publish(media: MediaEntity, source: string): Promise<void> {
+  new EventMessageContract({ source, ... });
+}
+
+// In the service:
+await this.publisher.publish(media, EventSources.cloudflare.streamReady);
+```
+
+---
+
+## 4. Internal Resource API `[MEDIUM]`
+
+When publishing messages with ID-only data, evaluate if consumers need a full-resource endpoint. If yes → **ask developer** whether to expose an internal `GET /internal/v1/<resource>/:id` (protected by `x-api-key`). Not needed for self-consumption.
+
+---
+
+## 5. Consumer Idempotency `[HIGH]`
+
+Kafka = at-least-once delivery. Every consumer must handle duplicates:
+
+- Dedup key: `processed:{type}:{subject}` stored in Redis with TTL ≥ 24h.
+- If key exists → skip and acknowledge.
+- Idempotency logic belongs in the processor, not the service layer.
+- Service layer should be idempotent by design where possible.
+
+---
+
+## 6. Dead-Letter Queue (DLQ) `[HIGH]`
+
+- Wrap handler logic in try/catch. Log errors with full message context (type, subject, source).
+- After retries (exponential backoff) → route to DLQ topic.
+- DLQ naming: `{original-topic}.dlq`. Register in `EventTopics` alongside source topic.
+- Never silently acknowledge failed messages.
+- DLQ consumers: `<module>.dlq-processor.ts`.
+
+---
+
+## 7. Versioned Topics `[HIGH]`
+
+Backward compatibility first. If breaking change unavoidable:
+
+- New topic: `event.{resource}.{action}.v2`. Register in EventTopics alongside old.
+- Producer publishes to both during migration. Consumers migrate at own pace.
+- Deprecate old topic with code comment + removal date. Never delete until all consumers confirmed migrated.
+
+---
+
+## 8. Correlation / Trace ID `[MEDIUM]`
+
+- HTTP: assign `x-correlation-id` on inbound (generate if missing). Forward on all outbound via NetworkHandler. Include in all log entries.
+- Kafka: derive from `subject` + `source` or attach as dedicated field.
+- Logic in `base/interceptors/correlation-id.interceptor.ts`.
+
+---
+
+## 9. Saga & Compensating Actions `[MEDIUM]`
+
+Multi-service flows with partial failure risk require saga pattern:
+
+- Define rollback/compensation for each step before implementation.
+- Event-driven: each step publishes success event; on failure, compensating events in reverse.
+- No distributed transactions (2PC). Each compensation must be idempotent.
+- Document saga steps as comment at top of orchestrating service/processor.
+- **Ask developer** to confirm saga steps before writing code.
+- Saga state must be persisted (not in-memory).
+
+---
+
+## 10. Registration Rules
+
+**New EventSource:** Add to `config-module/helpers/event-sources.ts`. Format: `{service}/{feature-service}/{action}` (lowercase kebab-case). Never hardcode source strings elsewhere.
+
+**New Topic:** Add to `config-module/helpers/event-topics.constant.ts`. Format: `event.{resource}.{action}` (lowercase with dots). Register DLQ alongside: `event.{resource}.{action}.dlq`. Never reference topic strings directly.

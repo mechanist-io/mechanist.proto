@@ -1,0 +1,84 @@
+---
+description: Approval workflow — change proposals, tiers, impact analysis, rollback, verification.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Approval Workflow
+
+## Core Rule
+
+**Never modify code, create files, delete files, or run commands without explicit developer approval.** Ambiguity → stop and ask.
+
+---
+
+## 1. Change Tiers
+
+| Tier | Scope | Examples |
+|---|---|---|
+| **Minor** | Single file, no interface change, reversible | Bug fix, rename local var, add decorator, typo |
+| **Moderate** | Multiple files, shared interface/DTO/contract | Add DTO field, refactor service method, new endpoint |
+| **Major** | New module, breaking change, migration, new dep, queue topology | New feature module, schema change, new Kafka topic |
+
+Unclear tier → classify upward and ask.
+
+---
+
+## 2. Proposal Format
+
+**Minor:** `📝 What / Why / File` — one block, wait for approval.
+
+**Moderate:** `📋 What / Why / Where (files) / Impact (backward compat? affected callers?)` — wait for approval.
+
+**Major:** `🚨 What / Why / Where / Impact analysis / Rollback plan / Verification steps` — wait for approval.
+
+---
+
+## 3. Impact Analysis (Moderate + Major)
+
+Required: files modified, files indirectly affected (callers/importers/consumers), cross-module impact, queue/event impact, test impact. If a public interface changes, all callers are in scope.
+
+---
+
+## 4. Rollback Awareness
+
+Destructive changes (delete file/field, rename public interface, migration, topic/payload change, add/remove dependency) must include an explicit rollback plan. No safe rollback → state that explicitly.
+
+---
+
+## 5. Commands
+
+Never run commands without stating command + purpose + effect and receiving approval.
+
+---
+
+## 6. Blocked State
+
+Decision point not covered in approved plan → **stop immediately**. Surface the blocker with context and options. Do not guess.
+
+---
+
+## 7. Post-Change Verification
+
+After implementation, state what to verify. Minor: one-liner. Moderate: test commands + caller check. Major: e2e tests + health check + infra verification.
+
+---
+
+## 8. Commit Message Suggestion
+
+After completing changes, suggest a copy-pasteable commit message: imperative mood, under 50 words, what + why.
+
+---
+
+## Quick Reference
+
+| Situation | Action |
+|---|---|
+| Any code change | Classify tier → propose → wait for approval |
+| Destructive change | Include rollback plan |
+| Moderate/Major | Include impact analysis |
+| Command needed | State command + purpose + effect, wait |
+| Blocked mid-implementation | Stop, surface blocker, present options |
+| Change complete | State verification steps |
+| Batch complete | Suggest commit message |

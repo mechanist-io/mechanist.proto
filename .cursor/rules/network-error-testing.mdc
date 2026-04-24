@@ -1,0 +1,29 @@
+---
+description: >
+  Load when writing or reviewing: HTTP/network calls, exception handling, error classes,
+  unit tests, integration tests, or TDD workflows. Covers NetworkHandler usage,
+  custom domain exceptions, and AAA test structure.
+alwaysApply: false
+---
+
+# Network, Error Handling & Testing
+
+## Network Calls
+
+- All outbound HTTP must go through `NetworkHandler` (`base/common/`).
+- Direct Axios/fetch usage is **forbidden**.
+
+## Error Handling
+
+- Use **custom domain exceptions** — never generic `Error`.
+- Never swallow exceptions silently.
+- Provide meaningful messages with context.
+- Handle errors at the appropriate layer — not too early, not too late.
+
+## Testing
+
+- Follow **TDD** — write the test before the implementation.
+- Use **AAA pattern**: Arrange, Act, Assert.
+- One assertion concept per test.
+- Mock all external dependencies — no real HTTP, DB, or queue calls in unit tests.
+- Test edge cases and error paths, not just the happy path.

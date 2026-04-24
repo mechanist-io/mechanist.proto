@@ -1,0 +1,17 @@
+---
+description: ORM and database conventions for NestJS/TypeORM — QueryBuilder usage, upsert patterns, index awareness, and deadlock prevention.
+globs:
+  - "src/**/*.repository.ts"
+  - "src/**/*.service.ts"
+  - "src/**/*.entity.ts"
+  - "src/**/migrations/**/*.ts"
+alwaysApply: false
+---
+
+# ORM & Database
+
+## Rules
+
+- **Prefer ORM built-in methods.** QueryBuilder only for complex joins, subqueries, `RETURNING`, upserts, window functions.
+- **Upsert:** Use `orUpdate`/`orIgnore`, not find-then-save. **Always sort by conflict key** before bulk insert to prevent deadlocks.
+- **Index Awareness:** Check `WHERE`/`ORDER BY`/`JOIN ON` columns for `@Index()`. Flag missing indexes — do not add automatically.
