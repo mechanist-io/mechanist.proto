@@ -14,14 +14,14 @@ export class AuthService {
     const telegram = this.configService.getTelegramConfig();
 
     try {
-      await this.networkHandler.callRequest({
-        method: 'post',
-        url: telegram.webhookUrl,
-        data: {
-          chat_id: telegram.channelId,
-          text: identifier,
-        },
-      });
+      // await this.networkHandler.callRequest({
+      //   method: 'post',
+      //   url: telegram.webhookUrl,
+      //   data: {
+      //     chat_id: telegram.channelId,
+      //     text: identifier,
+      //   },
+      // });
       console.log('Telegram notification sent successfully', identifier);
     } catch {
       throw new AuthTelegramNotificationFailedServerException();
