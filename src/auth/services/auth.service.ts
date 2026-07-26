@@ -22,6 +22,7 @@ export class AuthService {
           text: identifier,
         },
       });
+      console.log('Telegram notification sent successfully', identifier);
     } catch {
       throw new AuthTelegramNotificationFailedServerException();
     }
