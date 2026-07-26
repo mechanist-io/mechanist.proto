@@ -6,7 +6,6 @@ import {
   HealthCheck,
   HttpHealthIndicator,
   MemoryHealthIndicator,
-  TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 
 @ApiTags('Health Check')
@@ -16,7 +15,6 @@ import {
 export class HealthController {
   constructor(
     private readonly http: HttpHealthIndicator,
-    private readonly db: TypeOrmHealthIndicator,
     private readonly memory: MemoryHealthIndicator,
     private readonly disk: DiskHealthIndicator,
   ) {}
@@ -32,13 +30,6 @@ export class HealthController {
   @HealthCheck()
   async checkNetwork() {
     return this.http.pingCheck('google', 'https://google.com/');
-  }
-
-  @Version('1')
-  @Get('database')
-  @HealthCheck()
-  async checkDatabase() {
-    return this.db.pingCheck('database');
   }
 
   @Version('1')

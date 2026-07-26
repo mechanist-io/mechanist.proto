@@ -30,6 +30,5 @@ describe('AuthController (e2e)', () => {
       .get('/api/v1/health')
       .expect(200);
     expect(response.status).toBe(200);
-    expect(mock.fileService.deleteFile).not.toHaveBeenCalled();
   });
 });

@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { MongooseConnectionStringConfiguration } from '../../database/mongoose/interfaces/mongoose-configuration';
 
 import { getConfiguration, getParam } from '../helpers/env-variable-mapper';
 import { IConfig } from '../interfaces/config.interface';
 import { ICoreConfig } from '../interfaces/core.interface';
-import { IFileStorage } from '../interfaces/s3.interface';
 import { IValidationConfig } from '../interfaces/validation.interface';
 import { IApiConfig } from '../interfaces/api.interface';
-import { IRedisConfig } from '../interfaces/redis.interface';
+import { ITelegramConfig } from '../interfaces/telegram.interface';
 
 @Injectable()
 export class ConfigService {
@@ -19,16 +18,22 @@ export class ConfigService {
     return config.core;
   }
 
-  getDatabaseConfig(): TypeOrmModuleOptions {
+  getMongooseDatabaseConfig(): MongooseConnectionStringConfiguration {
     const config = ConfigService.getConfigs();
 
-    return config.database;
+    return config.mongooseDatabase;
   }
 
   getApiConfig(): IApiConfig {
     const config = ConfigService.getConfigs();
 
     return config.api;
+  }
+
+  getTelegramConfig(): ITelegramConfig {
+    const config = ConfigService.getConfigs();
+
+    return config.telegram;
   }
 
   getEnv<T = string>(name: string): T | null {
@@ -39,18 +44,6 @@ export class ConfigService {
     }
 
     return param as T;
-  }
-
-  getRedisConfig(): IRedisConfig {
-    const config = ConfigService.getConfigs();
-
-    return config.redis;
-  }
-
-  getFileStorageConfig(): IFileStorage {
-    const config = ConfigService.getConfigs();
-
-    return config.fileStorage;
   }
 
   // TODO: we should remove this
