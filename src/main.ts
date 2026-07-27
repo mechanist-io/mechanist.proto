@@ -7,20 +7,33 @@ import { swaggerConfiguration } from './base/helpers/swagger.helper';
 import { HttpExceptionFilter } from './base/exceptions/http/http.exception-filter';
 import validationOptions from './base/common/validation-options';
 
+function getCorsOrigins(): string[] {
+  const configuredOrigins = process.env.CORS_ORIGINS?.split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  if (configuredOrigins !== undefined && configuredOrigins.length > 0) {
+    return configuredOrigins;
+  }
+
+  return [
+    'http://localhost:9000',
+    'https://localhost:9000',
+    'http://localhost:9001',
+    'https://localhost:9001',
+  ];
+}
+
 async function bootstrap() {
   const PORT = getConfiguration().core.port || 9000;
   const app = await NestFactory.create(AppModule);
 
-  // TODO: algo-boilerplate -> add your cors here
-  // app.enableCors({
-  //   origin: [
-  //     'http://localhost:9001',
-  //     'https://localhost:9001',
-  //     'http://localhost:9000',
-  //     'https://localhost:9000',
-  //   ],
-  //   credentials: true,
-  // });
+  app.enableCors({
+    origin: getCorsOrigins(),
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  });
 
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI });
