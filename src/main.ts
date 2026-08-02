@@ -8,51 +8,12 @@ import { swaggerConfiguration } from './base/helpers/swagger.helper';
 import { HttpExceptionFilter } from './base/exceptions/http/http.exception-filter';
 import validationOptions from './base/common/validation-options';
 
-function getCorsOrigins(): string[] {
-  const configuredOrigins = process.env.CORS_ORIGINS?.split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean);
-
-  if (configuredOrigins !== undefined && configuredOrigins.length > 0) {
-    return configuredOrigins;
-  }
-
-  return [
-    'http://localhost:9000',
-    'https://localhost:9000',
-    'http://localhost:9001',
-    'https://localhost:9001',
-    'http://localhost:3000',
-    'https://localhost:3000',
-    'https://mechanist.ir',
-  ];
-}
-
-function isOriginAllowed(origin: string | undefined, allowedOrigins: string[]): boolean {
-  if (origin === undefined || origin.length === 0) {
-    return true;
-  }
-
-  return allowedOrigins.includes(origin);
-}
-
 async function bootstrap() {
   const PORT = getConfiguration().core.port || 9000;
-  const allowedOrigins = getCorsOrigins();
   const app = await NestFactory.create(AppModule);
 
-  Logger.log(`CORS allowed origins: ${allowedOrigins.join(', ')}`, 'Bootstrap');
-
   app.enableCors({
-    origin: (origin, callback) => {
-      if (isOriginAllowed(origin, allowedOrigins)) {
-        callback(null, origin ?? true);
-        return;
-      }
-
-      Logger.warn(`CORS blocked origin: ${origin}`, 'Bootstrap');
-      callback(null, false);
-    },
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
@@ -64,9 +25,9 @@ async function bootstrap() {
       return;
     }
 
-    const origin = req.headers.origin as string | undefined;
+    const { origin } = req.headers;
 
-    if (isOriginAllowed(origin, allowedOrigins) && origin !== undefined) {
+    if (origin !== undefined) {
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Access-Control-Allow-Credentials', 'true');
     }
